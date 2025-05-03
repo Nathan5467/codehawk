@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+pragma solidity 0.8.20;
 
 /* 
  __    __                       __            __    __ __          __       
@@ -66,7 +66,11 @@ contract LevelOne is Initializable, UUPSUpgradeable {
     event Enrolled(address indexed);
     event Expelled(address indexed);
     event SchoolInSession(uint256 indexed startTime, uint256 indexed endTime);
-    event ReviewGiven(address indexed student, bool indexed review, uint256 indexed studentScore);
+    event ReviewGiven(
+        address indexed student,
+        bool indexed review,
+        uint256 indexed studentScore
+    );
     event Graduated(address indexed levelTwo);
 
     ////////////////////////////////
@@ -117,7 +121,11 @@ contract LevelOne is Initializable, UUPSUpgradeable {
     /////     INITIALIZER      /////
     /////                      /////
     ////////////////////////////////
-    function initialize(address _principal, uint256 _schoolFees, address _usdcAddress) public initializer {
+    function initialize(
+        address _principal,
+        uint256 _schoolFees,
+        address _usdcAddress
+    ) public initializer {
         if (_principal == address(0)) {
             revert HH__ZeroAddress();
         }
@@ -266,7 +274,9 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         emit Expelled(_student);
     }
 
-    function startSession(uint256 _cutOffScore) public onlyPrincipal notYetInSession {
+    function startSession(
+        uint256 _cutOffScore
+    ) public onlyPrincipal notYetInSession {
         sessionEnd = block.timestamp + 4 weeks;
         inSession = true;
         cutOffScore = _cutOffScore;
@@ -279,7 +289,10 @@ contract LevelOne is Initializable, UUPSUpgradeable {
             revert HH__StudentDoesNotExist();
         }
         require(reviewCount[_student] < 5, "Student review count exceeded!!!");
-        require(block.timestamp >= lastReviewTime[_student] + reviewTime, "Reviews can only be given once per week");
+        require(
+            block.timestamp >= lastReviewTime[_student] + reviewTime,
+            "Reviews can only be given once per week"
+        );
 
         // where `false` is a bad review and true is a good review
         if (!review) {
@@ -292,7 +305,10 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         emit ReviewGiven(_student, review, studentScore[_student]);
     }
 
-    function graduateAndUpgrade(address _levelTwo, bytes memory) public onlyPrincipal {
+    function graduateAndUpgrade(
+        address _levelTwo,
+        bytes memory
+    ) public onlyPrincipal {
         if (_levelTwo == address(0)) {
             revert HH__ZeroAddress();
         }
@@ -311,5 +327,7 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         usdc.safeTransfer(principal, principalPay);
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyPrincipal {}
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyPrincipal {}
 }
