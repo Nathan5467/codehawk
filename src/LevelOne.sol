@@ -155,6 +155,11 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         if (isStudent[msg.sender]) {
             revert HH__StudentExists();
         }
+
+        // ⚠️⚠️⚠️⚠️⚠️⚠️ if (usdc.balanceOf(msg.sender) < schoolFees) {
+        //     revert HH__HawkHighFeesNotPaid();
+        // }
+
         usdc.safeTransferFrom(msg.sender, address(this), schoolFees);
 
         listOfStudents.push(msg.sender);
@@ -250,7 +255,7 @@ contract LevelOne is Initializable, UUPSUpgradeable {
 
     function expel(address _student) public onlyPrincipal {
         if (inSession == false) {
-            revert();
+            revert(); //revert HH__NotInSession();
         }
         if (_student == address(0)) {
             revert HH__ZeroAddress();
@@ -289,6 +294,14 @@ contract LevelOne is Initializable, UUPSUpgradeable {
             revert HH__StudentDoesNotExist();
         }
         require(reviewCount[_student] < 5, "Student review count exceeded!!!");
+
+        // int256 reviewTimeLeft = sessionEnd - lastReviewTime;
+        // int256 timeLeft = sessionEnd - block.timestamp;
+        // while(timeLeft < 0) {
+        //     reviewTimeLeft -= reviewTime;
+        //     timeleft -= reviewTime;
+        // }
+        // require(reviewTimeLeft > 0,"Review can only be given once per week");
         require(
             block.timestamp >= lastReviewTime[_student] + reviewTime,
             "Reviews can only be given once per week"
@@ -298,6 +311,10 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         if (!review) {
             studentScore[_student] -= 10;
         }
+        // ⚠️⚠️⚠️⚠️⚠️⚠️ else {
+        //     studentScore[_student] += 10;
+        // }
+        // reviewCount[_student]++;
 
         // Update last review time
         lastReviewTime[_student] = block.timestamp;
@@ -316,6 +333,8 @@ contract LevelOne is Initializable, UUPSUpgradeable {
         uint256 totalTeachers = listOfTeachers.length;
 
         uint256 payPerTeacher = (bursary * TEACHER_WAGE) / PRECISION;
+        // uint256 payTotalTeacher = (bursary * TEACHER_WAGE) / PRECISION;
+        // uint256 payPerTeacher = totalTeacher > 0 ? payTotalTeacher / totalTeachers : 0;
         uint256 principalPay = (bursary * PRINCIPAL_WAGE) / PRECISION;
 
         _authorizeUpgrade(_levelTwo);
